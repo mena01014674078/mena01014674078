@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-board" id="gameBoard"></div>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #333;
+}
+
+.game-board {
+    width: 400px;
+    height: 400px;
+    background-color: #222;
+    position: relative;
+    border: 2px solid #fff;
+}
+.snake {
+    width: 20px;
+    height: 20px;
+    background-color: #0f0;
+    position: absolute;
+}
+.food {
+    width: 20px;
+    height: 20px;
+    background-color: #f00;
+    position: absolute;
+}
+const board = document.getElementById('gameBoard');
+const boardSize = 20; // حجم كل قطعة من الثعبان والطعام
+
+let snake = [{ x: 5, y: 5 }]; // بدء الثعبان في المنتصف
+let food = generateFood();
+let direction = { x: 0, y: 0 };
+let score = 0;
+function drawSnake() {
+    board.innerHTML = ''; // تفريغ اللوحة
+    snake.forEach(segment => {
+        const snakeElement = document.createElement('div');
+        snakeElement.style.left = `${segment.x * boardSize}px`;
+        snakeElement.style.top = `${segment.y * boardSize}px`;
+        snakeElement.classList.add('snake');
+        board.appendChild(snakeElement);
+    });
+}
+
+function drawFood() {
+    const foodElement = document.createElement('div');
+    foodElement.style.left = `${food.x * boardSize}px`;
+    foodElement.style.top = `${food.y * boardSize}px`;
+    foodElement.classList.add('food');
+    board.appendChild(foodElement);
+}
+function moveSnake() {
+    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    snake.unshift(head); // إضافة قطعة جديدة في اتجاه الرأس
+
+    // التحقق من أكل الطعام
+    if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = generateFood();
+    } else {
+        snake.pop(); // إزالة آخر قطعة إذا لم يتم تناول الطعام
+    }
+}
+function generateFood() {
+    let foodX, foodY;
+    do {
+        foodX = Math.floor(Math.random() * (board.clientWidth / boardSize));
+        foodY = Math.floor(Math.random() * (board.clientHeight / boardSize));
+    } while (snake.some(segment => segment.x === foodX && segment.y === foodY)); // التأكد من عدم وجود الطعام على الثعبان
+    return { x: foodX, y: foodY };
+}
+window.addEventListener('keydown', e => {
+    switch (e.key) {
+        case 'ArrowUp':
+            if (direction.y === 0) direction = { x: 0, y: -1 };
+            break;
+        case 'ArrowDown':
+            if (direction.y === 0) direction = { x: 0, y: 1 };
+            break;
+        case 'ArrowLeft':
+            if (direction.x === 0) direction = { x: -1, y: 0 };
+            break;
+        case 'ArrowRight':
+            if (direction.x === 0) direction = { x: 1, y: 0 };
+            break;
+    }
+});
